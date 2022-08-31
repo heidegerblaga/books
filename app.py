@@ -1,5 +1,7 @@
-from database import (Base,session,Book, engine )
+from models import (Base, session,
+                    Book, engine)
 import datetime
+
 import csv
 
 def clean_date(date_str):
@@ -7,11 +9,15 @@ def clean_date(date_str):
               'November', 'December']
 
     split_date = date_str.split(' ')
-    print(split_date)
     month = int(months.index(split_date[0])+1)
     day=int(split_date[1].split(',')[0])
     year=int(split_date[2])
     return datetime.date(year, month,day)
+
+
+def clean_price(price_str):
+    price_float = float(price_str)
+    return int(price_float * 100)
 
 def Menu():
   while True:
@@ -53,22 +59,32 @@ def app():
            #analysis
            pass
        elif choice == '5':
-           print('GOOD BYE')
+           print('GOODBYE')
            app_running=False
            pass
 
 def add_csv():
     with open('suggested_books.csv') as csvfile:
-        data=csv.reader(csvfile)
+
+        data = csv.reader(csvfile)
         for row in data:
-            print(row)
+            title=row[0]
+            author=row[1]
+            date= clean_date(row[2])
+            price = clean_price(row[3])
+
+            new_book = Book(title=title,author=author,price=price,published_date=date)
+            session.add(new_book)
+    session.commit()
 
 
 if __name__=='__main__':
     Base.metadata.create_all(engine)
     #app()
-    #add_csv()
-    clean_date('October 24, 2017')
+    add_csv()
+
+    for book in session.query(Book):
+        print(book)
 
 
 
