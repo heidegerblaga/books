@@ -43,6 +43,29 @@ def clean_price(price_str):
 
     return int(price_float * 100)
 
+def clean_id(id_str, options):
+    try:
+        book_id= int(id_str)
+    except:
+        input('''
+                       \n****** ID EROR******
+                       \rThe ID format should be a number.
+                       \rPress enter to start again
+                       \r******************''')
+        return
+    else:
+        if book_id in options:
+            return book_id
+        else:
+            input(f'''
+                                   \n****** ID EROR******
+                                   \rOptions: {options}
+                                   \rPress enter to start again.
+                                   \r******************''')
+            return
+
+
+
 def Menu():
   while True:
     print('''\nMY BOOKS
@@ -93,10 +116,28 @@ def app():
 
            pass
        elif choice == '2':
-           #view
+           for book in session.query(Book):
+               print(f'{book.id} | {book.title} | {book.author} | {book.published_date} | {book.price}')
+           input('Press enter to return to the menu')
            pass
        elif choice == '3':
-           #search
+           id_options = []
+           for book in session.query(Book):
+               id_options.append(book.id)
+           id_error = True
+           while id_error:
+                id_choice = input((f'''
+                \n Id Options: {id_options}
+                \r Book id: '''))
+                id_choice = clean_id(id_choice,id_options)
+                if type(id_choice)== int:
+                 id_error = False
+           the_book = session.query(Book).filter(Book.id==id_choice).first()
+           print((f'''\n{the_book.title} by {the_book.author}
+           \rPublished: {the_book.published_date}
+           \rPrice: ${the_book.price/100}\n '''))
+           time.sleep(3)
+           input('press enter to return to the menu')
            pass
        elif choice == '4':
            #analysis
